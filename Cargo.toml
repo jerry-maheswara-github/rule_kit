@@ -1,0 +1,14 @@
+[package]
+name = "rule_kit"
+version = "0.1.0"
+edition = "2024"
+authors = ["Jerry Maheswara<jerrymaheswara@gmail.com>"]
+description = "A fast, composable, and DSL-friendly rule engine kit for Rust."
+license = "Apache-2.0"
+repository = "https://github.com/jerry-maheswara-github/rule_kit"
+readme = "README.md"
+documentation = "https://docs.rs/rule_kit"
+keywords = ["rule", "engine", "logic", "business-rules"]
+categories = ["development-tools", "web-programming"]
+
+[dependencies]
