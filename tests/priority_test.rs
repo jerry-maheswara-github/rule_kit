@@ -1,4 +1,4 @@
-use rule_kit::Rule;
+use rule_kit::rule::Rule;
 
 #[derive(Debug)]
 pub struct UserContext {
@@ -46,15 +46,12 @@ impl Rule<UserContext> for ScoreRule {
     }
 }
 
-
-/// Bungkus ke enum manual
 #[derive(Debug)]
 pub enum UserRule {
     AgeRule(AgeRule),
     ScoreRule(ScoreRule),
 }
 
-// Implementasi trait Rule untuk enum UserRule
 impl Rule<UserContext> for UserRule {
     type Output = &'static str;
     type RuleError = ();
@@ -83,9 +80,8 @@ impl Rule<UserContext> for UserRule {
 
 #[cfg(test)]
 mod tests {
-    use rule_kit::engine::PriorityOrder;
     use super::*;
-    use rule_kit::RuleEngine;
+    use rule_kit::builder::RuleEngineBuilder;
 
     #[test]
     fn test_evaluate_all_with_priority() {
@@ -94,10 +90,14 @@ mod tests {
             UserRule::ScoreRule(ScoreRule),
         ];
 
-        let engine = RuleEngine::new(rules, None);
+        let engine = RuleEngineBuilder::new()
+            .with_rules(rules)
+            .priority_asc()
+            .build();
 
         let ctx = UserContext { age: 20, score: 90 };
         let results = engine.evaluate_all(&ctx).unwrap();
+
 
         assert_eq!(results.len(), 2);
         assert_eq!(results[0], "Passed score check");
@@ -111,7 +111,10 @@ mod tests {
             UserRule::ScoreRule(ScoreRule),
         ];
 
-        let engine = RuleEngine::new(rules, Some(PriorityOrder::Asc));
+        let engine = RuleEngineBuilder::new()
+            .with_rules(rules)
+            .priority_asc()
+            .build();
 
         let ctx = UserContext { age: 20, score: 90 };
         let result = engine.evaluate_first(&ctx).unwrap();
@@ -126,7 +129,11 @@ mod tests {
             UserRule::ScoreRule(ScoreRule),
         ];
 
-        let engine = RuleEngine::new(rules, Some(PriorityOrder::Asc));
+        let engine = RuleEngineBuilder::new()
+            .with_rules(rules)
+            .priority_asc()
+            .build();
+
 
         let ctx = UserContext { age: 10, score: 30 };
         let result = engine.evaluate_all(&ctx).unwrap();

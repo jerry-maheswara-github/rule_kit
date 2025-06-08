@@ -12,3 +12,6 @@ keywords = ["rule", "engine", "logic", "business-rules"]
 categories = ["development-tools", "web-programming"]
 
 [dependencies]
+thiserror = "2.0.12"
+serde_yaml = "0.9.33"
+serde_json = "1.0.140"

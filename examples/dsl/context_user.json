@@ -1,0 +1,14 @@
+[
+  {
+    "name": "AgeRule",
+    "priority": 10,
+    "condition": "age >= 18",
+    "output": "Passed age check"
+  },
+  {
+    "name": "ScoreRule",
+    "priority": 5,
+    "condition": "score >= 80",
+    "output": "Passed score check"
+  }
+]
