@@ -28,7 +28,7 @@
 //!     pub total: f64,
 //! }
 //!
-//! #[derive(Debug)]
+//! #[derive(Debug, Clone)]
 //! enum OrderRule {
 //!     DiscountIfHighValue,
 //! }
@@ -56,12 +56,21 @@
 //!
 //!  let order = Order { total: 150.0 };
 //!  let rules = vec![OrderRule::DiscountIfHighValue];
-//!  let engine = RuleEngine::new(rules, None);
+//!  let engine = RuleEngine::new(rules.clone(), None);
 //!
 //!  let result = engine.evaluate_all(&order).unwrap();
 //!  println!("Adjustments: {:?}", result);
-//! ```
 //!
+//! // - Using RuleEngineBuilder for more flexibility
+//! use rule_kit::builder::RuleEngineBuilder;
+//! use rule_kit::structs::PriorityOrder;
+//! let engine_built = RuleEngineBuilder::new()
+//!     .with_rules(rules)
+//!     .priority_asc()
+//!     .build();
+//! 
+//! println!("Adjustments: {:?}", engine_built.evaluate_all(&order).unwrap());
+//! ```
 //! ---
 //!
 //! ## 📦 Crate Design Philosophy
@@ -96,20 +105,52 @@
 //!
 //! ---
 //!
-//! ## 📜 License
+//! ## 📜  License
 //!
-//! Dual-licensed under [MIT](LICENSE-MIT) or [Apache-2.0](LICENSE-APACHE), at your option.
+//! Licensed under:
+//! - Apache License, Version 2.0 [LICENSE](http://www.apache.org/licenses/LICENSE-2.0.txt)
 //!
-//! This means you are free to use, modify, and redistribute under either license.
+//! ---
+//!
+//! ## 🧑‍💻 Author
+//!
+//! Created and maintained by [Jerry Maheswara](https://github.com/jerry-maheswara-github)
+//!
+//! Feel free to reach out for suggestions, issues, or improvements!
+//!
+//! ---
+//!
+//! ## ❤️ Built with Love in Rust
+//!
+//! This project is built with ❤️ using **Rust** — a systems programming language that is safe, fast, and concurrent. Rust is the perfect choice for building reliable and efficient applications.
+//!
+//! ---
+//!
+//! ## 👋 Contributing
+//!
+//! Pull requests, issues, and feedback are welcome!  
+//! If you find this crate useful, give it a ⭐ and share it with others in the Rust community.
+//!
+//! ---
 
+/// Core rule evaluation engine that runs rules based on context and priority.
 pub mod engine;
+
+/// Defines the `Rule` trait and any related rule abstractions.
 pub mod rule;
+
+/// Contains error types used throughout the rule engine, including [`error::RuleError`] and [`error::RuleEngineError`].
 pub mod error;
+
+/// Provides the builder pattern for constructing a [`RuleEngine`] instance with fluent configuration.
 pub mod builder;
+
+/// Utility structs used across the crate, such as [`PriorityOrder`].
 pub mod structs;
 
 // Public re-exports
 pub use rule::Rule;
 pub use engine::RuleEngine;
 pub use structs::PriorityOrder;
+pub use error::RuleError;
 pub use error::RuleEngineError;
