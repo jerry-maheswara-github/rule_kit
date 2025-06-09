@@ -96,15 +96,6 @@
 //!
 //! ---
 //!
-//! ## 🛠 Coming Soon
-//!
-//! - [ ] JSON/YAML DSL compiler (`DslRule` → `impl Rule<T>`)
-//! - [ ] Built-in operator library (`eq`, `ne`, `lt`, `in`, etc.)
-//! - [ ] Serde support for DSL + dynamic rule config
-//! - [ ] Plugin system for runtime-loaded rules
-//!
-//! ---
-//!
 //! ## 📜  License
 //!
 //! Licensed under:

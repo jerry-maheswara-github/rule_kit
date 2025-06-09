@@ -41,14 +41,6 @@ pub enum RuleError {
     #[error("IO error: {0}")]
     Io(#[from] std::io::Error),
 
-    /// Error during YAML deserialization.
-    #[error("YAML deserialization error: {0}")]
-    Yaml(#[from] serde_yaml::Error),
-
-    /// Error during JSON deserialization.
-    #[error("JSON deserialization error: {0}")]
-    Json(#[from] serde_json::Error),
-
     /// Generic evaluation error, typically for domain-specific rule logic issues.
     #[error("Evaluation error: {0}")]
     Eval(String),
