@@ -1,7 +1,7 @@
 use std::marker::PhantomData;
 use crate::engine::RuleEngine;
-use crate::rule::Rule;
-use crate::structs::{PriorityOrder};
+use crate::traits::Rule;
+use crate::utils::{PriorityOrder};
 
 /// A builder for constructing a [`RuleEngine`] with a fluent interface.
 ///
@@ -37,8 +37,8 @@ where
     ///
     /// ```rust
     /// use rule_kit::builder::RuleEngineBuilder;
-    /// use rule_kit::rule::Rule;
-    /// use rule_kit::structs::PriorityOrder;
+    /// use rule_kit::traits::Rule;
+    /// use rule_kit::utils::PriorityOrder;
     /// use rule_kit::engine::RuleEngine;
     ///
     /// // Example context type

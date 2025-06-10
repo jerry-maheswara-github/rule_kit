@@ -1,4 +1,4 @@
-use rule_kit::rule::Rule;
+use rule_kit::traits::Rule;
 
 #[derive(Debug)]
 pub struct UserContext {
@@ -98,7 +98,6 @@ mod tests {
         let ctx = UserContext { age: 20, score: 90 };
         let results = engine.evaluate_all(&ctx).unwrap();
 
-
         assert_eq!(results.len(), 2);
         assert_eq!(results[0], "Passed score check");
         assert_eq!(results[1], "Passed age check");
@@ -133,7 +132,6 @@ mod tests {
             .with_rules(rules)
             .priority_asc()
             .build();
-
 
         let ctx = UserContext { age: 10, score: 30 };
         let result = engine.evaluate_all(&ctx).unwrap();

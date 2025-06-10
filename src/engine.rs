@@ -1,7 +1,7 @@
 use std::marker::PhantomData;
 use crate::error::RuleEngineError;
-use crate::rule::Rule;
-use crate::structs::{PriorityOrder};
+use crate::traits::Rule;
+use crate::utils::{PriorityOrder};
 
 /// A generic rule engine that evaluates and applies a list of rules based on a given context.
 ///

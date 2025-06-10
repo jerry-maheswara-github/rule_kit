@@ -11,7 +11,6 @@
 //! - Minimal core: no assumptions, no boilerplate
 //! - Pluggable rules: implement `Rule<T>` for any context
 //! - DSL-friendly: support JSON/YAML/Struct-based rules
-//! - Optional parallel evaluation (Rayon support)
 //! - Built for scale: evaluate hundreds of rules with ease
 //!
 //! ---
@@ -21,19 +20,19 @@
 //! Define a context (e.g. a struct), implement `Rule<T>`, and plug it into `RuleEngine`:
 //!
 //! ```rust
-//! use rule_kit::{Rule, RuleEngine};
+//!  use rule_kit::{Rule, RuleEngine};
 //!
-//! #[derive(Debug)]
-//! struct Order {
+//!  #[derive(Debug)]
+//!  struct Order {
 //!     pub total: f64,
-//! }
+//!  }
 //!
-//! #[derive(Debug, Clone)]
-//! enum OrderRule {
+//!  #[derive(Debug, Clone)]
+//!  enum OrderRule {
 //!     DiscountIfHighValue,
-//! }
+//!  }
 //!
-//! impl Rule<Order> for OrderRule {
+//!  impl Rule<Order> for OrderRule {
 //!     type Output = f64;
 //!     type RuleError = ();
 //!
@@ -62,18 +61,18 @@
 //!  println!("Adjustments: {:?}", result);
 //!
 //! // - Using RuleEngineBuilder for more flexibility
-//! use rule_kit::builder::RuleEngineBuilder;
-//! use rule_kit::structs::PriorityOrder;
-//! let engine_built = RuleEngineBuilder::new()
+//!  use rule_kit::builder::RuleEngineBuilder;
+//!  use rule_kit::utils::PriorityOrder;
+//!  let engine_built = RuleEngineBuilder::new()
 //!     .with_rules(rules)
 //!     .priority_asc()
 //!     .build();
-//! 
-//! println!("Adjustments: {:?}", engine_built.evaluate_all(&order).unwrap());
+//!
+//!  println!("Adjustments: {:?}", engine_built.evaluate_all(&order).unwrap());
 //! ```
 //! ---
 //!
-//! ## 📦 Crate Design Philosophy
+//! ## 📦 Design Philosophy
 //!
 //! `rule_kit` is designed to be:
 //!
@@ -83,16 +82,6 @@
 //!
 //! You implement the `Rule<T>` trait for your domain, and the engine handles
 //! prioritization, condition evaluation, and output aggregation.
-//!
-//! ---
-//!
-//! ## 📚 Module Overview
-//!
-//! - `engine` — Core `RuleEngine` implementation
-//! - `rule` — The `Rule` trait that powers your domain logic
-//! - `error` — Unified error type for rule evaluation and application
-//! - `builder` — Optional `RuleEngineBuilder` for fluent-style setup
-//! - `structs` — Common helper types (e.g. priority enum)
 //!
 //! ---
 //!
@@ -128,7 +117,7 @@
 pub mod engine;
 
 /// Defines the `Rule` trait and any related rule abstractions.
-pub mod rule;
+pub mod traits;
 
 /// Contains error types used throughout the rule engine, including [`error::RuleError`] and [`error::RuleEngineError`].
 pub mod error;
@@ -136,12 +125,11 @@ pub mod error;
 /// Provides the builder pattern for constructing a [`RuleEngine`] instance with fluent configuration.
 pub mod builder;
 
-/// Utility structs used across the crate, such as [`PriorityOrder`].
-pub mod structs;
+/// Utility enums or structs used across the crate, such as [`PriorityOrder`].
+pub mod utils;
 
 // Public re-exports
-pub use rule::Rule;
+pub use traits::Rule;
 pub use engine::RuleEngine;
-pub use structs::PriorityOrder;
-pub use error::RuleError;
-pub use error::RuleEngineError;
+pub use builder::RuleEngineBuilder;
+pub use utils::PriorityOrder;
