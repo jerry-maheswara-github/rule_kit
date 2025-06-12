@@ -59,3 +59,20 @@ pub trait Rule<C> {
         0
     }
 }
+pub trait MutableRule<C> {
+    type RuleError;
+
+    fn name(&self) -> &str;
+
+    fn priority(&self) -> i32 {
+        0
+    }
+
+    fn evaluate(&self, ctx: &C) -> Result<bool, Self::RuleError>;
+
+    fn apply(&mut self, ctx: &mut C) -> Result<(), Self::RuleError>;
+
+    fn before_apply(&self, _ctx: &C) {}
+
+    fn after_apply(&self, _ctx: &C) {}
+}
