@@ -133,3 +133,8 @@ pub use traits::Rule;
 pub use engine::RuleEngine;
 pub use builder::RuleEngineBuilder;
 pub use utils::PriorityOrder;
+
+
+pub use traits::MutableRule;
+pub use engine::MutableRuleEngine;
+pub use builder::MutableRuleEngineBuilder;
