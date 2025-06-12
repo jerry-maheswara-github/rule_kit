@@ -1,9 +1,10 @@
-use rule_kit::traits::Rule;
+use rule_kit::Rule;
 
 #[derive(Debug)]
 pub struct UserContext {
     pub age: u32,
     pub score: u32,
+    pub applied: Vec<String>,
 }
 
 #[derive(Debug)]
@@ -13,67 +14,111 @@ pub struct AgeRule;
 pub struct ScoreRule;
 
 impl Rule<UserContext> for AgeRule {
-    type Output = &'static str;
     type RuleError = ();
 
-    fn evaluate(&self, ctx: &UserContext) -> Result<bool, Self::RuleError> {
-        Ok(ctx.age >= 18)
-    }
-
-    fn apply(&self, _ctx: &UserContext) -> Result<Self::Output, Self::RuleError> {
-        Ok("Passed age check")
+    fn name(&self) -> &str {
+        "AgeRule"
     }
 
     fn priority(&self) -> u32 {
         10
     }
+
+    fn evaluate(&self, ctx: &UserContext) -> Result<bool, Self::RuleError> {
+        Ok(ctx.age >= 18)
+    }
+
+    fn apply(&mut self, ctx: &mut UserContext) -> Result<(), Self::RuleError> {
+        ctx.applied.push("Passed age check".into());
+        Ok(())
+    }
+
+    fn before_apply(&self, _ctx: &UserContext) {
+        println!("About to apply AgeRule");
+    }
+
+    fn after_apply(&self, _ctx: &UserContext) {
+        println!("Finished applying AgeRule");
+    }
 }
 
 impl Rule<UserContext> for ScoreRule {
-    type Output = &'static str;
     type RuleError = ();
 
-    fn evaluate(&self, ctx: &UserContext) -> Result<bool, Self::RuleError> {
-        Ok(ctx.score >= 80)
-    }
-
-    fn apply(&self, _ctx: &UserContext) -> Result<Self::Output, Self::RuleError> {
-        Ok("Passed score check")
+    fn name(&self) -> &str {
+        "ScoreRule"
     }
 
     fn priority(&self) -> u32 {
         5
     }
+
+    fn evaluate(&self, ctx: &UserContext) -> Result<bool, Self::RuleError> {
+        Ok(ctx.score >= 80)
+    }
+
+    fn apply(&mut self, ctx: &mut UserContext) -> Result<(), Self::RuleError> {
+        ctx.applied.push("Passed score check".into());
+        Ok(())
+    }
+
+    fn before_apply(&self, _ctx: &UserContext) {
+        println!("About to apply ScoreRule");
+    }
+
+    fn after_apply(&self, _ctx: &UserContext) {
+        println!("Finished applying ScoreRule");
+    }
 }
 
 #[derive(Debug)]
 pub enum UserRule {
-    AgeRule(AgeRule),
-    ScoreRule(ScoreRule),
+    Age(AgeRule),
+    Score(ScoreRule),
 }
 
 impl Rule<UserContext> for UserRule {
-    type Output = &'static str;
     type RuleError = ();
 
-    fn evaluate(&self, ctx: &UserContext) -> Result<bool, Self::RuleError> {
+    fn name(&self) -> &str {
         match self {
-            UserRule::AgeRule(rule) => rule.evaluate(ctx),
-            UserRule::ScoreRule(rule) => rule.evaluate(ctx),
-        }
-    }
-
-    fn apply(&self, ctx: &UserContext) -> Result<Self::Output, Self::RuleError> {
-        match self {
-            UserRule::AgeRule(rule) => rule.apply(ctx),
-            UserRule::ScoreRule(rule) => rule.apply(ctx),
+            UserRule::Age(_) => "AgeRule",
+            UserRule::Score(_) => "ScoreRule",
         }
     }
 
     fn priority(&self) -> u32 {
         match self {
-            UserRule::AgeRule(rule) => rule.priority(),
-            UserRule::ScoreRule(rule) => rule.priority(),
+            UserRule::Age(r) => r.priority(),
+            UserRule::Score(r) => r.priority(),
+        }
+    }
+
+    fn evaluate(&self, ctx: &UserContext) -> Result<bool, Self::RuleError> {
+        match self {
+            UserRule::Age(r) => r.evaluate(ctx),
+            UserRule::Score(r) => r.evaluate(ctx),
+        }
+    }
+
+    fn apply(&mut self, ctx: &mut UserContext) -> Result<(), Self::RuleError> {
+        match self {
+            UserRule::Age(r) => r.apply(ctx),
+            UserRule::Score(r) => r.apply(ctx),
+        }
+    }
+
+    fn before_apply(&self, ctx: &UserContext) {
+        match self {
+            UserRule::Age(r) => r.before_apply(ctx),
+            UserRule::Score(r) => r.before_apply(ctx),
+        }
+    }
+
+    fn after_apply(&self, ctx: &UserContext) {
+        match self {
+            UserRule::Age(r) => r.after_apply(ctx),
+            UserRule::Score(r) => r.after_apply(ctx),
         }
     }
 }
@@ -81,61 +126,33 @@ impl Rule<UserContext> for UserRule {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use rule_kit::builder::RuleEngineBuilder;
 
     #[test]
-    fn test_evaluate_all_with_priority() {
-        let rules = vec![
-            UserRule::AgeRule(AgeRule),
-            UserRule::ScoreRule(ScoreRule),
+    fn test_apply_mutates_context() {
+        let mut rules: Vec<UserRule> = vec![
+            UserRule::Age(AgeRule),
+            UserRule::Score(ScoreRule),
         ];
 
-        let engine = RuleEngineBuilder::new()
-            .with_rules(rules)
-            .priority_asc()
-            .build();
+        rules.sort_by_key(|r| r.priority());
 
-        let ctx = UserContext { age: 20, score: 90 };
-        let results = engine.evaluate_all(&ctx).unwrap();
+        let mut ctx = UserContext {
+            age: 20,
+            score: 90,
+            applied: vec![],
+        };
 
-        assert_eq!(results.len(), 2);
-        assert_eq!(results[0], "Passed score check");
-        assert_eq!(results[1], "Passed age check");
-    }
+        for rule in &mut rules {
+            if rule.evaluate(&ctx).unwrap() {
+                rule.before_apply(&ctx);
+                rule.apply(&mut ctx).unwrap();
+                rule.after_apply(&ctx);
+            }
+        }
 
-    #[test]
-    fn test_evaluate_first_short_circuit() {
-        let rules = vec![
-            UserRule::AgeRule(AgeRule),
-            UserRule::ScoreRule(ScoreRule),
-        ];
-
-        let engine = RuleEngineBuilder::new()
-            .with_rules(rules)
-            .priority_asc()
-            .build();
-
-        let ctx = UserContext { age: 20, score: 90 };
-        let result = engine.evaluate_first(&ctx).unwrap();
-
-        assert_eq!(result, Some("Passed score check"));
-    }
-
-    #[test]
-    fn test_no_rule_passed() {
-        let rules = vec![
-            UserRule::AgeRule(AgeRule),
-            UserRule::ScoreRule(ScoreRule),
-        ];
-
-        let engine = RuleEngineBuilder::new()
-            .with_rules(rules)
-            .priority_asc()
-            .build();
-
-        let ctx = UserContext { age: 10, score: 30 };
-        let result = engine.evaluate_all(&ctx).unwrap();
-
-        assert!(result.is_empty());
+        assert_eq!(ctx.applied, vec![
+            "Passed score check",
+            "Passed age check"
+        ]);
     }
 }
